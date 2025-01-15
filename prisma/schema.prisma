@@ -19,30 +19,35 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Schedule Schedule[]
+  schedules Schedule[]
+  bookings Booking[]
 }
 
 model Provider {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   email        String         @unique
+
   services     Service[]
   workingHours WorkingHours[]
   schedules    Schedule[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+
+  bookings Booking[]
 }
 
 model Service {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   duration   Int // Duration in minutes (e.g., 30 or 60)
+
   providerId String   @db.ObjectId
   provider   Provider @relation(fields: [providerId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  Schedule Schedule[]
+  schedules Schedule[]
 }
 
 model WorkingHours {
@@ -69,6 +74,23 @@ model Schedule {
   user       User?    @relation(fields: [userId], references: [id])
   serviceId  String   @db.ObjectId
   service    Service  @relation(fields: [serviceId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  bookings Booking[]
+}
+
+
+model Booking {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id])
+  scheduleId String   @db.ObjectId
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
+  providerId String   @db.ObjectId
+  
+  provider   Provider @relation(fields: [providerId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -76,6 +98,5 @@ model Schedule {
 enum Role {
   USER
   PROVIDER
-  ADMIN
   SUPERADMIN
 }
