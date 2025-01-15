@@ -50,6 +50,7 @@ const getAllProvider = catchAsync(
     }
 )
 
+// update a driver
 const updateProvider = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;
