@@ -10,72 +10,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Service {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  specialization String
+  duration       Int
+  price          Float
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  slots          Slot[]
+}
+
+model Slot {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  startTime   DateTime
+  endTime     DateTime
+  date        DateTime
+  duration    Int
+  isBooked    Boolean      @default(false)
+  isAvailable Boolean      @default(true)
+  serviceId   String       @db.ObjectId
+  service     Service      @relation(fields: [serviceId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  appointment Appointment?
+}
+
+model Appointment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String   @unique
-  password  String
-  role      Role
+  date      DateTime
+  service   String
+  email     String
+  phone     String
+  notes     String?
+  slotId    String   @unique @db.ObjectId
+  slot      Slot     @relation(fields: [slotId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  Schedule Schedule[]
-}
-
-model Provider {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String         @unique
-  services     Service[]
-  workingHours WorkingHours[]
-  schedules    Schedule[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-}
-
-model Service {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
-  duration   Int // Duration in minutes (e.g., 30 or 60)
-  providerId String   @db.ObjectId
-  provider   Provider @relation(fields: [providerId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  Schedule Schedule[]
-}
-
-model WorkingHours {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  providerId String   @db.ObjectId
-  provider   Provider @relation(fields: [providerId], references: [id])
-  dayOfWeek  String // E.g., "Monday", "Tuesday"
-  startTime  String // E.g., "08:00"
-  endTime    String // E.g., "17:00"
-  breakStart String? // Optional, e.g., "12:00"
-  breakEnd   String? // Optional, e.g., "13:00"
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Schedule {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  providerId String   @db.ObjectId
-  provider   Provider @relation(fields: [providerId], references: [id])
-  startTime  DateTime
-  endTime    DateTime
-  isBooked   Boolean  @default(false)
-  userId     String?  @db.ObjectId
-  user       User?    @relation(fields: [userId], references: [id])
-  serviceId  String   @db.ObjectId
-  service    Service  @relation(fields: [serviceId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-enum Role {
-  USER
-  PROVIDER
-  ADMIN
-  SUPERADMIN
 }
