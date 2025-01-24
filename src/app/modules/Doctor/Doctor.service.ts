@@ -1,43 +1,89 @@
-// Doctor.service: Module file for the Doctor.service functionality.
-
 import { Request } from 'express';
 import prisma from '../../utils/prisma';
-import { service } from './Doctor.interface';
+import { uploadToDigitalOceanAWS } from '../../utils/fileUploadAws';
 
-export const createDoctor = async (req:Request) => {
-    const file=req.file as any
-  return await prisma.doctor.create({
+// Create a new doctor
+const createDoctor = async (req: Request) => {
+  const file = req.file as any;
+  const payload = JSON.parse(req.body.data);
+
+  if (file) {
+    payload.profileImage = (await uploadToDigitalOceanAWS(file)).Location;
+  }
+
+  console.log(payload);
+
+  const doctor = await prisma.doctor.create({
     data: payload,
   });
+  return doctor;
 };
 
-export const getDoctorById = async (id: string) => {
-  return await prisma.doctor.findUnique({
+// Get all doctors
+const getAllDoctors = async () => {
+  const doctors = await prisma.doctor.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+  return doctors;
+};
+
+// Get a single doctor by ID
+const getDoctorById = async (id: string) => {
+  const doctor = await prisma.doctor.findUnique({
     where: { id },
   });
+  if (!doctor) {
+    throw new Error('Doctor not found');
+  }
+  return doctor;
 };
 
-export const getAllDoctors = async () => {
-  return await prisma.doctor.findMany();
-};
-
-export const updateDoctor = async (
-  id: string,
-  data: {
-    name?: string;
-    title?: string;
-    specialization?: string;
-    profileImage?: string;
-  },
-) => {
-  return await prisma.doctor.update({
-    where: { id },
-    data,
+// Update doctor details
+const updateDoctor = async (req: Request) => {
+  const file = req.file as any;
+  const payload = JSON.parse(req.body.data);
+  const existingDoctor = await prisma.doctor.findUnique({
+    where: { id: req.params.id },
   });
+
+  if (!existingDoctor) {
+    throw new Error('Doctor not found');
+  }
+
+  // Check if there's an image file in the update request
+  if (file) {
+    payload.image = (await uploadToDigitalOceanAWS(file)).Location;
+  }
+
+  const updatedDoctor = await prisma.doctor.update({
+    where: { id: req.params.id },
+    data: payload,
+  });
+
+  return updatedDoctor;
 };
 
-export const deleteDoctor = async (id: string) => {
-  return await prisma.doctor.delete({
+// Delete a doctor by ID
+const deleteDoctor = async (id: string) => {
+  const existingDoctor = await prisma.doctor.findUnique({
     where: { id },
   });
+
+  if (!existingDoctor) {
+    throw new Error('Doctor not found');
+  }
+
+  const deletedDoctor = await prisma.doctor.delete({
+    where: { id },
+  });
+
+  return deletedDoctor;
+};
+
+export const DoctorService = {
+  createDoctor,
+  getAllDoctors,
+  getDoctorById,
+  updateDoctor,
+  deleteDoctor,
 };
