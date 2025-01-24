@@ -8,7 +8,7 @@ const port = config.port || 5000;
 async function main() {
   const server: Server = app.listen(port, () => {
     console.log('Sever is running on port ', port);
-    seedSuperAdmin();
+    // seedSuperAdmin();
   });
   const exitHandler = () => {
     if (server) {

@@ -19,6 +19,8 @@ model Service {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   slots          Slot[]
+
+  @@map("services")
 }
 
 model Slot {
@@ -34,6 +36,8 @@ model Slot {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   appointment Appointment?
+
+  @@map("slots")
 }
 
 model Appointment {
@@ -47,4 +51,42 @@ model Appointment {
   slot      Slot     @relation(fields: [slotId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("appointments")
+}
+
+model ContactForm {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String?
+  phone     String?
+  address   String
+  country   String
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  image     String?
+  rating    Int      @default(5)
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+model Doctor {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  title          String
+  specialization String
+  profileImage   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("doctors")
 }
