@@ -10,6 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// !Done
 model Service {
   id             String  @id @default(auto()) @map("_id") @db.ObjectId
   name           String
