@@ -17,7 +17,7 @@ const createReview = catchAsync(async (req, res) => {
 });
 
 // Get All Reviews
-export const getAllReviews = catchAsync(async (req: Request, res: Response) => {
+const getAllReviews = catchAsync(async (req: Request, res: Response) => {
   const { page = 1, limit = 10 } = req.query;
   const result = await ReviewService.GetAllReviews(Number(page), Number(limit));
 
@@ -29,7 +29,7 @@ export const getAllReviews = catchAsync(async (req: Request, res: Response) => {
 });
 
 // Get Single Review by ID
-export const getReviewById = catchAsync(async (req: Request, res: Response) => {
+const getReviewById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await ReviewService.GetReviewById(id);
 
@@ -41,7 +41,7 @@ export const getReviewById = catchAsync(async (req: Request, res: Response) => {
 });
 
 // Update Review by ID
-export const updateReview = catchAsync(async (req: Request, res: Response) => {
+const updateReview = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await ReviewService.UpdateReview(req, id);
 
@@ -53,7 +53,7 @@ export const updateReview = catchAsync(async (req: Request, res: Response) => {
 });
 
 // Delete Review by ID
-export const deleteReview = catchAsync(async (req: Request, res: Response) => {
+const deleteReview = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await ReviewService.DeleteReview(id);
 

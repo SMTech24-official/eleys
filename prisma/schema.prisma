@@ -67,6 +67,8 @@ model ContactForm {
   updatedAt DateTime @updatedAt
 }
 
+
+// !Done
 model Review {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
