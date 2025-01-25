@@ -88,6 +88,77 @@ const generateSlots = async (payload: any) => {
 
   return schedules;
 };
+
+const getAllSlots = async () => {
+  const schedules = await prisma.slot.findMany();
+  return schedules;
+};
+
+const getScheduleByServiceId = async (serviceId: string) => {
+  const schedules = await prisma.slot.findMany({
+    where: {
+      serviceId: serviceId,
+    },
+  });
+  return schedules;
+};
+
+const getSlotById = async (slotId: string) => {
+  console.log(slotId);
+  const schedule = await prisma.slot.findUnique({
+    where: {
+      id: slotId,
+    },
+  });
+  if (!schedule) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Schedule not found');
+  }
+  return schedule;
+};
+
+const updateSlot = async (scheduleId: string, payload: any) => {
+  const schedule = await prisma.slot.findUnique({
+    where: {
+      id: scheduleId,
+    },
+  });
+
+  if (!schedule) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Schedule not found');
+  }
+
+  const updatedSchedule = await prisma.slot.update({
+    where: { id: scheduleId },
+    data: payload,
+  });
+
+  return updatedSchedule;
+};
+
+const deleteSlot = async (scheduleId: string) => {
+  const schedule = await prisma.slot.findUnique({
+    where: {
+      id: scheduleId,
+    },
+  });
+
+  if (!schedule) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Schedule not found');
+  }
+
+  await prisma.slot.delete({
+    where: {
+      id: scheduleId,
+    },
+  });
+
+  return true;
+};
 export const SlotService = {
   generateSlots,
+  getAllSlots,
+  getScheduleByServiceId,
+  getSlotById,
+  updateSlot,
+  deleteSlot,
 };
