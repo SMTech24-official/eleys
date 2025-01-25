@@ -12,21 +12,23 @@ datasource db {
 
 // !Done
 model Service {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   specialization String
   duration       Int
   price          Float
-  isAvailable    Boolean  @default(true)
-  doctorId       String   @db.ObjectId
-  doctor         Doctor   @relation(fields: [doctorId], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  isAvailable    Boolean       @default(true)
+  doctorId       String        @db.ObjectId
+  doctor         Doctor        @relation(fields: [doctorId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   slots          Slot[]
+  appointments   Appointment[]
 
   @@map("services")
 }
 
+// !Done
 model Slot {
   id            String       @id @default(auto()) @map("_id") @db.ObjectId
   startDateTime DateTime
@@ -43,10 +45,12 @@ model Slot {
   @@map("slots")
 }
 
+// !Done
 model Appointment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   date      DateTime
-  service   String
+  serviceId String   @db.ObjectId
+  service   Service  @relation(fields: [serviceId], references: [id])
   email     String
   phone     String
   notes     String?

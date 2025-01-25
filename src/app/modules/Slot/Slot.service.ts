@@ -3,6 +3,7 @@ import { addHours, addMinutes, format } from 'date-fns';
 import { ObjectId } from 'mongodb';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
+import { isDataReferenced } from '../../utils/isDataReferenced';
 
 const generateSlots = async (payload: any) => {
   const { startDate, endDate, startTime, endTime, serviceId } = payload;
@@ -136,6 +137,16 @@ const updateSlot = async (scheduleId: string, payload: any) => {
 };
 
 const deleteSlot = async (scheduleId: string) => {
+  const isReferenced = await isDataReferenced('Slot', 'id', scheduleId, [
+    { model: 'Appointment', field: 'slotId' },
+  ]);
+
+  if (isReferenced) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Cannot delete the slot as it is referenced in other models',
+    );
+  }
   const schedule = await prisma.slot.findUnique({
     where: {
       id: scheduleId,
