@@ -12,34 +12,33 @@ datasource db {
 
 // !Done
 model Service {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   specialization String
   duration       Int
   price          Float
-  isAvailable    Boolean @default(true)
-  doctorId       String  @db.ObjectId
-  doctor         Doctor  @relation(fields: [doctorId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  slots     Slot[]
+  isAvailable    Boolean  @default(true)
+  doctorId       String   @db.ObjectId
+  doctor         Doctor   @relation(fields: [doctorId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  slots          Slot[]
 
   @@map("services")
 }
 
 model Slot {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  startTime   DateTime
-  endTime     DateTime
-  date        DateTime
-  duration    Int
-  isBooked    Boolean      @default(false)
-  isAvailable Boolean      @default(true)
-  serviceId   String       @db.ObjectId
-  service     Service      @relation(fields: [serviceId], references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  appointment Appointment?
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  startDateTime DateTime
+  endDateTime   DateTime
+  duration      Int
+  isBooked      Boolean      @default(false)
+  isAvailable   Boolean      @default(true)
+  serviceId     String       @db.ObjectId
+  service       Service      @relation(fields: [serviceId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  appointment   Appointment?
 
   @@map("slots")
 }
