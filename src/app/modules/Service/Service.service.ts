@@ -44,6 +44,9 @@ const createService = async (payload: any) => {
 // Get all services
 const getAllServices = async () => {
   const services = await prisma.service.findMany({
+    include: {
+      slots: true,
+    },
     orderBy: { createdAt: 'desc' },
   });
 
