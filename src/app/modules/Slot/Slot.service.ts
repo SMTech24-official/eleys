@@ -96,7 +96,7 @@ const getAllSlots = async (
   startDate?: Date,
   endDate?: Date,
 ) => {
-  // Calculate the number of slots to skip based on the page
+
   const skip = (page - 1) * limit;
 
   const whereCondition: any = {
@@ -104,30 +104,30 @@ const getAllSlots = async (
     isBooked: false,
   };
 
-  // Add date filtering for startDate and endDate using startDateTime and endDateTime
+  
   if (startDate) {
     whereCondition.startDateTime = {
-      gte: startDate, // Greater than or equal to startDate
+      gte: startDate,
     };
   }
 
   if (endDate) {
     whereCondition.endDateTime = {
-      lte: endDate, // Less than or equal to endDate
+      lte: endDate,
     };
   }
 
-  // Fetch slots from the database based on the filtering conditions
+ 
   const schedules = await prisma.slot.findMany({
     where: whereCondition,
-    take: limit, // Limit the number of results to the specified 'limit' (7 in this case)
-    skip: skip, // Skip the previous pages based on the page number
+    take: limit, 
+    skip: skip, 
     orderBy: {
-      startDateTime: 'asc', // Ensure the slots are ordered by startTime
+      startDateTime: 'asc', 
     },
   });
 
-  // Optionally, you can return the total count for pagination purposes
+ 
   const totalCount = await prisma.slot.count({
     where: whereCondition,
   });
