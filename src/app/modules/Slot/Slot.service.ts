@@ -90,14 +90,54 @@ const generateSlots = async (payload: any) => {
   return schedules;
 };
 
-const getAllSlots = async () => {
+const getAllSlots = async (
+  page: number = 1,
+  limit: number = 7,
+  startDate?: Date,
+  endDate?: Date,
+) => {
+  // Calculate the number of slots to skip based on the page
+  const skip = (page - 1) * limit;
+
+  const whereCondition: any = {
+    isAvailable: true,
+    isBooked: false,
+  };
+
+  // Add date filtering for startDate and endDate using startDateTime and endDateTime
+  if (startDate) {
+    whereCondition.startDateTime = {
+      gte: startDate, // Greater than or equal to startDate
+    };
+  }
+
+  if (endDate) {
+    whereCondition.endDateTime = {
+      lte: endDate, // Less than or equal to endDate
+    };
+  }
+
+  // Fetch slots from the database based on the filtering conditions
   const schedules = await prisma.slot.findMany({
-    where: {
-      isAvailable: true,
-      isBooked: false,
+    where: whereCondition,
+    take: limit, // Limit the number of results to the specified 'limit' (7 in this case)
+    skip: skip, // Skip the previous pages based on the page number
+    orderBy: {
+      startDateTime: 'asc', // Ensure the slots are ordered by startTime
     },
   });
-  return schedules;
+
+  // Optionally, you can return the total count for pagination purposes
+  const totalCount = await prisma.slot.count({
+    where: whereCondition,
+  });
+
+  return {
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page,
+    schedules,
+  };
 };
 
 const getScheduleByServiceId = async (serviceId: string) => {

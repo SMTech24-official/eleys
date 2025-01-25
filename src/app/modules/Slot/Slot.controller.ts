@@ -15,10 +15,24 @@ const generateSlots = catchAsync(async (req, res) => {
     data: result,
   });
 });
-// Get all slots
+// Get all slots with pagination and filtering
 const getAllSlots = catchAsync(async (req, res) => {
-  const result = await SlotService.getAllSlots();
+  // Extract query parameters from the request
+  const { page = 1, limit = 7, startDate, endDate } = req.query;
 
+  // Convert the query parameters into the appropriate types (for startDate and endDate)
+  const startDateParsed = startDate ? new Date(startDate as string) : undefined;
+  const endDateParsed = endDate ? new Date(endDate as string) : undefined;
+
+  // Call the service method with pagination and filtering parameters
+  const result = await SlotService.getAllSlots(
+    parseInt(page as string, 10),  // Convert page to an integer
+    parseInt(limit as string, 10), // Convert limit to an integer
+    startDateParsed,     // Pass the parsed startDate
+    endDateParsed        // Pass the parsed endDate
+  );
+
+  // Send the response back to the client
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: 'Slots fetched successfully',
