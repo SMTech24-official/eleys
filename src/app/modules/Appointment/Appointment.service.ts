@@ -45,7 +45,7 @@ const createAppointment = async (payload: any) => {
     // Update the slot to mark it as booked
     await prisma.slot.update({
       where: { id: slotId },
-      data: { isBooked: true },
+      data: { isBooked: true, isAvailable: false },
     });
 
     // Return the result of the appointment creation

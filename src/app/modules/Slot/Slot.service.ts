@@ -91,7 +91,12 @@ const generateSlots = async (payload: any) => {
 };
 
 const getAllSlots = async () => {
-  const schedules = await prisma.slot.findMany();
+  const schedules = await prisma.slot.findMany({
+    where: {
+      isAvailable: true,
+      isBooked: false,
+    },
+  });
   return schedules;
 };
 
