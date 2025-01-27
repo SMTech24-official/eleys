@@ -38,6 +38,18 @@ const getServiceById = catchAsync(async (req, res) => {
     data: result,
   });
 });
+// Get a service by ID
+const getServiceByDoctorId = catchAsync(async (req, res) => {
+  const { doctorId } = req.params;
+
+  const result = await ServiceService.getServiceByDoctorId(doctorId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: 'Service fetched successfully',
+    data: result,
+  });
+});
 
 // Update a service by ID
 const updateService = catchAsync(async (req, res) => {
@@ -69,4 +81,5 @@ export const ServiceController = {
   getServiceById,
   updateService,
   deleteService,
+  getServiceByDoctorId
 };

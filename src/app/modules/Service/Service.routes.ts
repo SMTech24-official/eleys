@@ -6,6 +6,9 @@ import { ServiceController } from './Service.controller';
 
 const router = express.Router();
 
+// Get a service by doctor ID
+router.get('/doctor/:doctorId', ServiceController.getServiceByDoctorId);
+
 // Create a new service
 router.post('/', ServiceController.createService);
 
@@ -14,6 +17,8 @@ router.get('/', ServiceController.getAllServices);
 
 // Get a service by ID
 router.get('/:id', ServiceController.getServiceById);
+
+
 
 // Update a service by ID
 router.put('/:id', ServiceController.updateService);

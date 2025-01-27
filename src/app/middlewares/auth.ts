@@ -21,15 +21,15 @@ const auth = (...roles: string[]) => {
       );
 
       // Check User is exist
-      const user = await prisma.user.findUniqueOrThrow({
-        where: {
-          id: verifyUserToken.id,
-        },
-      });
+      // const user = await prisma.user.findUniqueOrThrow({
+      //   where: {
+      //     id: verifyUserToken.id,
+      //   },
+      // });
 
-      if (!user) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
-      }
+      // if (!user) {
+      //   throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
+      // }
 
       req.user = verifyUserToken;
       if (roles.length && !roles.includes(verifyUserToken.role)) {

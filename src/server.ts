@@ -1,6 +1,6 @@
 import { Server } from 'http';
 import app from './app';
-import seedSuperAdmin from './app/DB';
+
 import config from './config';
 
 const port = config.port || 5000;

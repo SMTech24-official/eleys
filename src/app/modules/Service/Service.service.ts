@@ -84,6 +84,26 @@ const updateService = async (id: string, payload: any) => {
   return updatedService;
 };
 
+const getServiceByDoctorId = async (doctorId: string) => {
+  console.log(doctorId);
+
+  if (!doctorId) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Doctor ID is required');
+  }
+  if (!/^[0-9a-fA-F]{24}$/.test(doctorId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid doctor ID');
+  }
+  const isDoctorExist = await prisma.doctor.findFirst({
+    where: { id: doctorId },
+  });
+  if (!isDoctorExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Doctor not found');
+  }
+  const services = await prisma.service.findMany({});
+
+  return services;
+};
+
 // Delete a service by ID
 const deleteService = async (id: string) => {
   const service = await prisma.service.findUnique({
@@ -107,4 +127,5 @@ export const ServiceService = {
   getServiceById,
   updateService,
   deleteService,
+  getServiceByDoctorId
 };
