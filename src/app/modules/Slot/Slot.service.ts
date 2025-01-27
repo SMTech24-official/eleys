@@ -90,13 +90,12 @@ const generateSlots = async (payload: any) => {
   return schedules;
 };
 
-const getAllSlotss = async (
+const getAllSlots = async (
   page: number = 1,
   limit: number = 7,
   startDate?: Date,
   endDate?: Date,
 ) => {
-
   const skip = (page - 1) * limit;
 
   const whereCondition: any = {
@@ -104,7 +103,6 @@ const getAllSlotss = async (
     isBooked: false,
   };
 
-  
   if (startDate) {
     whereCondition.startDateTime = {
       gte: startDate,
@@ -117,43 +115,47 @@ const getAllSlotss = async (
     };
   }
 
- 
   const schedules = await prisma.slot.findMany({
     where: whereCondition,
-    take: limit, 
-    skip: skip, 
+    include: {
+      service: true,
+    },
+    take: limit,
+    skip: skip,
     orderBy: {
-      startDateTime: 'asc', 
+      startDateTime: 'asc',
     },
   });
- // Group slots by date
- const groupedSlots: any = {};
 
- schedules.forEach((slot) => {
-   const date = format(new Date(slot.startDateTime), 'yyyy-MM-dd'); // Use 'yyyy-MM-dd' format for the date
-   const day = format(new Date(slot.startDateTime), 'EEE'); // Extract the day of the week (e.g., "Tue", "Wed")
+  // Group slots by date
+  const groupedSlots: any = {};
 
-   if (!groupedSlots[date]) {
-     groupedSlots[date] = {
-       date: date,
-       day: day,
-       slots: [],
-     };
-   }
+  schedules.forEach(slot => {
+    const date = format(new Date(slot.startDateTime), 'yyyy-MM-dd'); // Use 'yyyy-MM-dd' format for the date
+    const day = format(new Date(slot.startDateTime), 'EEE'); // Extract the day of the week (e.g., "Tue", "Wed")
 
-   groupedSlots[date].slots.push({
-     startDateTime: slot.startDateTime,
-     endDateTime: slot.endDateTime,
+    if (!groupedSlots[date]) {
+      groupedSlots[date] = {
+        date: date,
+        day: day,
+        slots: [],
+      };
+    }
+
+    groupedSlots[date].slots.push({
+      id: slot.id,
+      serviceId: slot.serviceId,
+      startDateTime: slot.startDateTime,
+      endDateTime: slot.endDateTime,
       duration: slot.duration,
       isBooked: slot.isBooked,
       isAvailable: slot.isAvailable,
-   });
- });
+    });
+  });
 
- // Convert groupedSlots object to an array
- const groupedSlotsArray = Object.values(groupedSlots);
+  // Convert groupedSlots object to an array
+  const groupedSlotsArray = Object.values(groupedSlots);
 
- 
   const totalCount = await prisma.slot.count({
     where: whereCondition,
   });
@@ -162,16 +164,15 @@ const getAllSlotss = async (
     totalCount,
     totalPages: Math.ceil(totalCount / limit),
     currentPage: page,
-    schedules:groupedSlotsArray,
+    schedules: groupedSlotsArray,
   };
 };
-const getAllSlots = async (
+const getAllSlot = async (
   page: number = 1,
   limit: number = 7,
   startDate?: Date,
   endDate?: Date,
 ) => {
-
   const skip = (page - 1) * limit;
 
   const whereCondition: any = {
@@ -179,7 +180,6 @@ const getAllSlots = async (
     isBooked: false,
   };
 
-  
   if (startDate) {
     whereCondition.startDateTime = {
       gte: startDate,
@@ -192,17 +192,15 @@ const getAllSlots = async (
     };
   }
 
- 
   const schedules = await prisma.slot.findMany({
     where: whereCondition,
-    take: limit, 
-    skip: skip, 
+    take: limit,
+    skip: skip,
     orderBy: {
-      startDateTime: 'asc', 
+      startDateTime: 'asc',
     },
   });
 
- 
   const totalCount = await prisma.slot.count({
     where: whereCondition,
   });
