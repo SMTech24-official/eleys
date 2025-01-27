@@ -4,18 +4,20 @@ import prisma from '../../utils/prisma';
 import emailSender from '../../utils/emailSernder';
 import emailTemplate from '../../utils/emailTemplet';
 
-
 // Send email and save contact form data to the database
 const SendEmail = async (payload: any) => {
   if (!payload.email) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Please provide a valid email address');
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Please provide a valid email address',
+    );
   }
 
   // Send email using emailSender utility
   await emailSender(
     'Thank You for Contacting Us',
-    payload.email,
-    emailTemplate(payload)
+    'fbelalhossain2072@gmail.com',
+    emailTemplate(payload),
   );
 
   // Save contact form submission to the database

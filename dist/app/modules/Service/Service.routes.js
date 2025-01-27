@@ -8,6 +8,8 @@ exports.ServiceRoutes = void 0;
 const express_1 = __importDefault(require("express"));
 const Service_controller_1 = require("./Service.controller");
 const router = express_1.default.Router();
+// Get a service by doctor ID
+router.get('/doctor/:doctorId', Service_controller_1.ServiceController.getServiceByDoctorId);
 // Create a new service
 router.post('/', Service_controller_1.ServiceController.createService);
 // Get all services

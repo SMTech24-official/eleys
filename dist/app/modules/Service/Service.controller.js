@@ -46,6 +46,16 @@ const getServiceById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+// Get a service by ID
+const getServiceByDoctorId = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { doctorId } = req.params;
+    const result = yield Service_service_1.ServiceService.getServiceByDoctorId(doctorId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        message: 'Service fetched successfully',
+        data: result,
+    });
+}));
 // Update a service by ID
 const updateService = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
@@ -72,4 +82,5 @@ exports.ServiceController = {
     getServiceById,
     updateService,
     deleteService,
+    getServiceByDoctorId
 };
