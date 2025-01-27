@@ -99,7 +99,12 @@ const getServiceByDoctorId = async (doctorId: string) => {
   if (!isDoctorExist) {
     throw new AppError(httpStatus.NOT_FOUND, 'Doctor not found');
   }
-  const services = await prisma.service.findMany({});
+  const services = await prisma.service.findMany({
+    include: {
+      slots: true,
+    },
+    where: { doctorId },
+  });
 
   return services;
 };
@@ -127,5 +132,5 @@ export const ServiceService = {
   getServiceById,
   updateService,
   deleteService,
-  getServiceByDoctorId
+  getServiceByDoctorId,
 };

@@ -91,7 +91,12 @@ const getServiceByDoctorId = (doctorId) => __awaiter(void 0, void 0, void 0, fun
     if (!isDoctorExist) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Doctor not found');
     }
-    const services = yield prisma_1.default.service.findMany({});
+    const services = yield prisma_1.default.service.findMany({
+        include: {
+            slots: true,
+        },
+        where: { doctorId },
+    });
     return services;
 });
 // Delete a service by ID
@@ -113,5 +118,5 @@ exports.ServiceService = {
     getServiceById,
     updateService,
     deleteService,
-    getServiceByDoctorId
+    getServiceByDoctorId,
 };
