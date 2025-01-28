@@ -8,7 +8,7 @@ export const initiateSuperAdmin = async () => {
   const payload: any = {
     firstName: "Super",
     lastName: "Admin",
-    email: "belalhossain22000@gmail.com",
+    email: "admin@gmail.com",
     role: UserRole.SUPER_ADMIN,
   };
   // hash the password with bcrypt
