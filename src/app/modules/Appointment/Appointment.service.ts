@@ -70,7 +70,9 @@ const createAppointment = async (payload: any) => {
 };
 
 const getAllAppointments = async () => {
-  const appointments = await prisma.appointment.findMany();
+  const appointments = await prisma.appointment.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
   return appointments;
 };
 
@@ -105,5 +107,5 @@ export const AppointmentService = {
   createAppointment,
   getAllAppointments,
   getAllAppointmentsById,
-  deleteAppointment
+  deleteAppointment,
 };

@@ -85,7 +85,7 @@ const updateService = async (id: string, payload: any) => {
 };
 
 const getServiceByDoctorId = async (doctorId: string) => {
-  console.log(doctorId);
+  
 
   if (!doctorId) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Doctor ID is required');
