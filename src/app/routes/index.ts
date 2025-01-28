@@ -6,17 +6,19 @@ import { DoctorRoutes } from '../modules/Doctor/Doctor.routes';
 import { ServiceRoutes } from '../modules/Service/Service.routes';
 import { SlotRoutes } from '../modules/Slot/Slot.routes';
 import { AppointmentRoutes } from '../modules/Appointment/Appointment.routes';
+import { AuthRouters } from '../modules/Auth/auth.routes';
+import { UserRouters } from '../modules/User/user.route';
 const router = express.Router();
 
 const moduleRoutes = [
-  // {
-  //   path: '/auth',
-  //   route: AuthRouters,
-  // },
-  // {
-  //   path: '/users',
-  //   route: UserRouters,
-  // },
+  {
+    path: '/auth',
+    route: AuthRouters,
+  },
+  {
+    path: '/users',
+    route: UserRouters,
+  },
   {
     path: '/reviews',
     route: ReviewRoutes,

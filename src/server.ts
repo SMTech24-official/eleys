@@ -2,13 +2,14 @@ import { Server } from 'http';
 import app from './app';
 
 import config from './config';
+import { initiateSuperAdmin } from './app/db/db';
 
 const port = config.port || 5000;
 
 async function main() {
   const server: Server = app.listen(port, () => {
     console.log('Sever is running on port ', port);
-    // seedSuperAdmin();
+    initiateSuperAdmin();
   });
   const exitHandler = () => {
     if (server) {

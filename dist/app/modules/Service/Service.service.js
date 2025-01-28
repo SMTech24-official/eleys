@@ -78,7 +78,6 @@ const updateService = (id, payload) => __awaiter(void 0, void 0, void 0, functio
     return updatedService;
 });
 const getServiceByDoctorId = (doctorId) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(doctorId);
     if (!doctorId) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Doctor ID is required');
     }

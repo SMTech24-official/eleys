@@ -10,6 +10,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String
+  email     String     @unique
+  password  String
+  role      UserRole   @default(USER)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("Users")
+}
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  SUPER_ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
 // !Done
 model Service {
   id             String        @id @default(auto()) @map("_id") @db.ObjectId
@@ -47,17 +74,17 @@ model Slot {
 
 // !Done
 model Appointment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   date      DateTime?
-  serviceId String   @db.ObjectId
-  service   Service  @relation(fields: [serviceId], references: [id])
+  serviceId String    @db.ObjectId
+  service   Service   @relation(fields: [serviceId], references: [id])
   email     String
   phone     String
   notes     String?
-  slotId    String   @unique @db.ObjectId
-  slot      Slot     @relation(fields: [slotId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  slotId    String    @unique @db.ObjectId
+  slot      Slot      @relation(fields: [slotId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@map("appointments")
 }
