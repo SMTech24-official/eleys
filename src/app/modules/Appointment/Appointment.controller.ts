@@ -5,6 +5,8 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status';
 import { AppointmentService } from './Appointment.service';
+import pick from '../../utils/pick';
+import { appointmentSearchAbleFields } from './appointment.costant';
 
 // Create a new doctor
 const createAppointment = catchAsync(async (req: Request, res: Response) => {
@@ -19,7 +21,9 @@ const createAppointment = catchAsync(async (req: Request, res: Response) => {
 
 // Create a new doctor
 const getAllAppointments = catchAsync(async (req: Request, res: Response) => {
-  const result = await AppointmentService.getAllAppointments();
+  const filters = pick(req.query, appointmentSearchAbleFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await AppointmentService.getAllAppointments(filters, options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

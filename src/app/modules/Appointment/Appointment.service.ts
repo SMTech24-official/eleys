@@ -5,8 +5,12 @@ import emailSender from '../../utils/emailSernder';
 import appoinmentClientEmail from '../../utils/appoinmentClintEmail';
 import doctorAppoinmentEmail from '../../utils/doctorAppoinmentEmail';
 import { StripeService } from '../Stripe/Stripe.service';
-import { PaymentType } from '@prisma/client';
+import { PaymentType, Prisma } from '@prisma/client';
 import { AppointmentPayload } from './Appointment.interface';
+import { IUserFilterRequest } from '../User/user.interface';
+import { IPaginationOptions } from '../../utils/paginations';
+import { paginationHelper } from '../../utils/paginationHelper';
+import { appointmentSearchAbleFields } from './appointment.costant';
 
 // Appointment.service: Module file for the Appointment.service functionality.
 
@@ -177,12 +181,73 @@ const createAppointment = async (payload: AppointmentPayload) => {
   return result;
 };
 
-// Get all appointments
-const getAllAppointments = async () => {
-  const appointments = await prisma.appointment.findMany({
-    orderBy: { createdAt: 'desc' },
+// // Get all appointments
+// const getAllAppointments = async () => {
+//   const appointments = await prisma.appointment.findMany({
+//     orderBy: { createdAt: 'desc' },
+//   });
+//   return appointments;
+// };
+
+// reterive all users from the database also searcing anf filetering
+const getAllAppointments = async (
+  params: IUserFilterRequest,
+  options: IPaginationOptions,
+) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
+
+  const andCondions: Prisma.AppointmentWhereInput[] = [];
+
+  if (params.searchTerm) {
+    andCondions.push({
+      OR: appointmentSearchAbleFields.map(field => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andCondions.push({
+      AND: Object.keys(filterData).map(key => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+  const whereConditons: Prisma.AppointmentWhereInput = { AND: andCondions };
+
+  const result = await prisma.appointment.findMany({
+    where: whereConditons,
+    skip,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: 'desc',
+          },
   });
-  return appointments;
+  const total = await prisma.appointment.count({
+    where: whereConditons,
+  });
+
+  if (!result || result.length === 0) {
+    throw new AppError(404, 'No active users found');
+  }
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const getAllAppointmentsById = async (id: string) => {

@@ -85,8 +85,6 @@ const updateService = async (id: string, payload: any) => {
 };
 
 const getServiceByDoctorId = async (doctorId: string) => {
-  
-
   if (!doctorId) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Doctor ID is required');
   }
@@ -100,10 +98,15 @@ const getServiceByDoctorId = async (doctorId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Doctor not found');
   }
   const services = await prisma.service.findMany({
-    include: {
-      slots: true,
-    },
     where: { doctorId },
+    include: {
+      slots: {
+        where: {
+          isAvailable: true,
+          isBooked: false,
+        },
+      },
+    },
   });
 
   return services;
