@@ -72,21 +72,56 @@ model Slot {
   @@map("slots")
 }
 
-// !Done
 model Appointment {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  date      DateTime?
-  serviceId String    @db.ObjectId
-  service   Service   @relation(fields: [serviceId], references: [id])
-  email     String
-  phone     String
-  notes     String?
-  slotId    String    @unique @db.ObjectId
-  slot      Slot      @relation(fields: [slotId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  serviceId       String        @db.ObjectId
+  service         Service       @relation(fields: [serviceId], references: [id])
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  address         String
+  notes           String?
+  slotId          String        @unique @db.ObjectId
+  slot            Slot          @relation(fields: [slotId], references: [id])
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentType     PaymentType   @default(CASH)
+  amountPaid      Float         @default(0.0)
+  remainingAmount Float         @default(0.0)
+  payableAmount   Float         @default(0.0)
+  isVisited       Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  payments        Payment[]
 
   @@map("appointments")
+}
+
+model Payment {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  paymentIntentId String
+  amount          Float
+  status          PaymentStatus @default(PENDING)
+  appointmentId   String        @db.ObjectId
+  appointment     Appointment   @relation(fields: [appointmentId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  COMPLETED
+  FAILED
+}
+
+enum PaymentType {
+  CASH
+  PARTIAL
+  FULL
+  NONE
 }
 
 // !Done

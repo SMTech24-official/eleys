@@ -4,11 +4,14 @@ import prisma from '../../utils/prisma';
 import emailSender from '../../utils/emailSernder';
 import appoinmentClientEmail from '../../utils/appoinmentClintEmail';
 import doctorAppoinmentEmail from '../../utils/doctorAppoinmentEmail';
+import { StripeService } from '../Stripe/Stripe.service';
+import { PaymentType } from '@prisma/client';
+import { AppointmentPayload } from './Appointment.interface';
 
 // Appointment.service: Module file for the Appointment.service functionality.
 
 // create appointments
-const createAppointment = async (payload: any) => {
+const createAppointment = async (payload: AppointmentPayload) => {
   const { serviceId, slotId } = payload;
 
   const result = await prisma.$transaction(async prisma => {
@@ -37,9 +40,109 @@ const createAppointment = async (payload: any) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Slot is already booked');
     }
 
-    // Create the appointment
+    if (payload.paymentType === PaymentType.FULL) {
+      const paymentIntent = await StripeService.createPaymentIntent(
+        isServiceExist.price,
+        payload.paymentMethodId!,
+      );
+
+      // ! full payment
+      if (paymentIntent.status === 'succeeded') {
+        const appointment = await prisma.appointment.create({
+          data: {
+            serviceId: payload.serviceId,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            email: payload.email,
+            phone: payload.phone,
+            address: payload.address,
+            notes: payload.notes,
+            slotId,
+            paymentStatus: 'COMPLETED',
+            paymentType: PaymentType.FULL,
+            amountPaid: paymentIntent.amount_received / 100,
+            remainingAmount: 0,
+            payableAmount: isServiceExist.price,
+          },
+        });
+
+        await prisma.payment.create({
+          data: {
+            paymentIntentId: paymentIntent.id,
+            amount: paymentIntent.amount_received,
+            status: 'COMPLETED',
+            appointmentId: appointment.id,
+          },
+        });
+
+        // Update the slot to mark it as booked
+        await prisma.slot.update({
+          where: { id: slotId },
+          data: { isBooked: true, isAvailable: false },
+        });
+
+        return appointment;
+      }
+    }
+    // ! partial payment
+    else if (payload.paymentType === PaymentType.PARTIAL) {
+      const paymentIntent = await StripeService.createPaymentIntent(
+        payload.price!,
+        payload.paymentMethodId!,
+      );
+
+      if (paymentIntent.status === 'succeeded') {
+        const appointment = await prisma.appointment.create({
+          data: {
+            serviceId: payload.serviceId,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            email: payload.email,
+            phone: payload.phone,
+            address: payload.address,
+            notes: payload.notes,
+            slotId,
+            paymentStatus: 'PARTIAL',
+            paymentType: PaymentType.PARTIAL,
+            amountPaid: paymentIntent.amount_received / 100,
+            remainingAmount:
+              isServiceExist.price - paymentIntent.amount_received / 100,
+            payableAmount: isServiceExist.price,
+          },
+        });
+
+        await prisma.payment.create({
+          data: {
+            paymentIntentId: paymentIntent.id,
+            amount: paymentIntent.amount_received / 100,
+            status: 'PARTIAL',
+            appointmentId: appointment.id,
+          },
+        });
+
+        // Update the slot to mark it as booked
+        await prisma.slot.update({
+          where: { id: slotId },
+          data: { isBooked: true, isAvailable: false },
+        });
+        return appointment;
+      }
+    }
+
     const appointment = await prisma.appointment.create({
-      data: payload,
+      data: {
+        serviceId: payload.serviceId,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        email: payload.email,
+        phone: payload.phone,
+        address: payload.address,
+        notes: payload.notes,
+        slotId,
+        paymentStatus: 'PENDING',
+        paymentType: PaymentType.CASH,
+        payableAmount: isServiceExist.price,
+      },
     });
 
     // Update the slot to mark it as booked
@@ -69,6 +172,7 @@ const createAppointment = async (payload: any) => {
   return result;
 };
 
+// Get all appointments
 const getAllAppointments = async () => {
   const appointments = await prisma.appointment.findMany({
     orderBy: { createdAt: 'desc' },

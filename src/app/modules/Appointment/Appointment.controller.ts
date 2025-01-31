@@ -12,7 +12,7 @@ const createAppointment = catchAsync(async (req: Request, res: Response) => {
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
-    message: 'Appointment created successfully',
+    message: 'Appointment Booked successfully.Check your email',
     data: result,
   });
 });
