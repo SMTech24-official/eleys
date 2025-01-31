@@ -13,7 +13,12 @@ import { AppointmentPayload } from './Appointment.interface';
 // create appointments
 const createAppointment = async (payload: AppointmentPayload) => {
   const { serviceId, slotId } = payload;
-
+  const isSlotExistInAppointment = await prisma.appointment.findUnique({
+    where: { slotId },
+  });
+  if (isSlotExistInAppointment) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Slot is already booked');
+  }
   const result = await prisma.$transaction(async prisma => {
     // Check if service exists
     const isServiceExist = await prisma.service.findUnique({
@@ -128,7 +133,7 @@ const createAppointment = async (payload: AppointmentPayload) => {
         return appointment;
       }
     }
-
+    // !cash payment
     const appointment = await prisma.appointment.create({
       data: {
         serviceId: payload.serviceId,
