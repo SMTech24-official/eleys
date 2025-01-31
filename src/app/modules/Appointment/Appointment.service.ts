@@ -5,7 +5,7 @@ import emailSender from '../../utils/emailSernder';
 import appoinmentClientEmail from '../../utils/appoinmentClintEmail';
 import doctorAppoinmentEmail from '../../utils/doctorAppoinmentEmail';
 import { StripeService } from '../Stripe/Stripe.service';
-import { PaymentType, Prisma } from '@prisma/client';
+import { PaymentStatus, PaymentType, Prisma } from '@prisma/client';
 import { AppointmentPayload } from './Appointment.interface';
 import { IUserFilterRequest } from '../User/user.interface';
 import { IPaginationOptions } from '../../utils/paginations';
@@ -277,9 +277,47 @@ const deleteAppointment = async (id: string) => {
   return result;
 };
 
+
+const updateAppointmentStatus = async (appointmentId: string, status: PaymentStatus) => {
+  const allowedStatuses = ['PENDING', 'COMPLETED', 'CANCELLED',"PARTIAL"]; 
+  if (!allowedStatuses.includes(status)) {
+    throw new AppError(400, 'Invalid status provided');
+  }
+
+  const updatedAppointment = await prisma.appointment.update({
+    where: { id: appointmentId },
+    data: { 
+      paymentStatus:status
+     },
+  });
+
+  if (!updatedAppointment) {
+    throw new AppError(404, 'Appointment not found');
+  }
+
+  return updatedAppointment;
+};
+
+const updateIsVisitedStatus = async (appointmentId: string, isVisited: boolean) => {
+  const updatedAppointment = await prisma.appointment.update({
+    where: { id: appointmentId },
+    data: { isVisited },
+  });
+
+  if (!updatedAppointment) {
+    throw new AppError(404, 'Appointment not found');
+  }
+
+  return updatedAppointment;
+};
+
+
+
 export const AppointmentService = {
   createAppointment,
   getAllAppointments,
   getAllAppointmentsById,
   deleteAppointment,
+  updateAppointmentStatus,
+  updateIsVisitedStatus
 };
