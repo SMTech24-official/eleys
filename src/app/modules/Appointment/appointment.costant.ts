@@ -12,6 +12,4 @@ export const appointmentSearchAbleFields = [
   'firstName',
   'lastName',
   'phone',
-  'paymentStatus',
-  'paymentType',
 ];
