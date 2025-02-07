@@ -9,6 +9,8 @@ const CreateReview = async (req: Request) => {
   const file = req.file as any;
 
   const payload = JSON.parse(req.body.data);
+  
+  payload.rating = parseInt(payload.rating);
 
   if (file) {
     payload.image = (await uploadToDigitalOceanAWS(file)).Location;
@@ -18,24 +20,23 @@ const CreateReview = async (req: Request) => {
 };
 
 const GetAllReviews = async (page: number = 1, limit: number = 10) => {
-    const skip = (page - 1) * limit;
-  
-    const reviews = await prisma.review.findMany({
-      skip,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    });
-  
-    const totalCount = await prisma.review.count();
-  
-    return {
-      data: reviews,
-      totalCount,
-      currentPage: page,
-      totalPages: Math.ceil(totalCount / limit),
-    };
+  const skip = (page - 1) * limit;
+
+  const reviews = await prisma.review.findMany({
+    skip,
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const totalCount = await prisma.review.count();
+
+  return {
+    data: reviews,
+    totalCount,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit),
   };
-  
+};
 
 const GetReviewById = async (id: string) => {
   if (!id) {
