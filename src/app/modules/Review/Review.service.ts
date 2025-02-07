@@ -9,7 +9,7 @@ const CreateReview = async (req: Request) => {
   const file = req.file as any;
 
   const payload = JSON.parse(req.body.data);
-  
+
   payload.rating = parseInt(payload.rating);
 
   if (file) {
@@ -69,6 +69,7 @@ const UpdateReview = async (req: Request, id: string) => {
   const file = req.file as Express.Multer.File | undefined;
 
   let payload = JSON.parse(req.body.data);
+  payload.rating = parseInt(payload.rating);
 
   if (file) {
     payload.image = (await uploadToDigitalOceanAWS(file)).Location;
