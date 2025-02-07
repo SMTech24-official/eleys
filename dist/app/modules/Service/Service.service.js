@@ -91,10 +91,15 @@ const getServiceByDoctorId = (doctorId) => __awaiter(void 0, void 0, void 0, fun
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Doctor not found');
     }
     const services = yield prisma_1.default.service.findMany({
-        include: {
-            slots: true,
-        },
         where: { doctorId },
+        include: {
+            slots: {
+                where: {
+                    isAvailable: true,
+                    isBooked: false,
+                },
+            },
+        },
     });
     return services;
 });

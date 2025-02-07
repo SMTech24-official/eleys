@@ -228,6 +228,13 @@ const getSlotById = async (slotId: string) => {
     where: {
       id: slotId,
     },
+    include: {
+      service: {
+        select: {
+          price: true,
+        },
+      },
+    },
   });
   if (!schedule) {
     throw new AppError(httpStatus.NOT_FOUND, 'Schedule not found');

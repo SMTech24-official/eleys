@@ -11,8 +11,6 @@ const createDoctor = async (req: Request) => {
     payload.profileImage = (await uploadToDigitalOceanAWS(file)).Location;
   }
 
-  console.log(payload);
-
   const doctor = await prisma.doctor.create({
     data: payload,
   });
@@ -52,7 +50,7 @@ const updateDoctor = async (req: Request) => {
 
   // Check if there's an image file in the update request
   if (file) {
-    payload.image = (await uploadToDigitalOceanAWS(file)).Location;
+    payload.profileImage = (await uploadToDigitalOceanAWS(file)).Location;
   }
 
   const updatedDoctor = await prisma.doctor.update({
