@@ -22,7 +22,7 @@ router.get('/:id', ServiceController.getServiceById);
 
 
 // Update a service by ID
-router.put('/:id', ServiceController.updateService);
+router.put('/:id',fileUploader.uploadInstituteFile, ServiceController.updateService);
 
 // Delete a service by ID
 router.delete('/:id', ServiceController.deleteService);

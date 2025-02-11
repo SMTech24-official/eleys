@@ -51,7 +51,7 @@ const createService = async (req: Request) => {
     );
   }
 
-  
+
   const images = req.files;
 
   let galleryImages: Express.Multer.File[] | Express.Multer.File[][];
@@ -129,7 +129,21 @@ const getServiceById = async (id: string) => {
 };
 
 // Update a service by ID
-const updateService = async (id: string, payload: any) => {
+const updateService = async (id: string, req: Request) => {
+  let payload: any = {};
+
+  // Parse the incoming JSON data
+  try {
+    payload = JSON.parse(req.body.data);
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Invalid JSON data. Error parsing JSON.',
+    );
+  }
+
+  // Check if the service exists
   const existingService = await prisma.service.findUnique({
     where: { id },
   });
@@ -138,6 +152,52 @@ const updateService = async (id: string, payload: any) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Service not found');
   }
 
+  // If doctorId is provided, verify if the doctor exists
+  if (payload.doctorId) {
+    const isDoctorExist = await prisma.doctor.findUnique({
+      where: { id: payload.doctorId },
+    });
+
+    if (!isDoctorExist) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Doctor does not exist');
+    }
+  }
+
+  // Handle images if provided
+  const images = req.files;
+
+  let galleryImages: Express.Multer.File[] | Express.Multer.File[][] = [];
+  if (Array.isArray(images)) {
+    galleryImages = images;
+  } else if (images && 'galleryImages' in images) {
+    galleryImages = images.galleryImages;
+  }
+
+  if (galleryImages.length) {
+    payload.galleryImages = await Promise.all(
+      galleryImages.map(async (image) => {
+        if (Array.isArray(image)) {
+          throw new AppError(httpStatus.BAD_REQUEST, 'Invalid image format');
+        }
+        return {
+          url: (await uploadToDigitalOceanAWS(image)).Location,
+        };
+      })
+    );
+  }
+
+  let thumbImage: Express.Multer.File | undefined;
+  if (images && !Array.isArray(images) && 'thumbImage' in images) {
+    thumbImage = Array.isArray(images.thumbImage)
+      ? images.thumbImage[0]
+      : images.thumbImage;
+  }
+
+  if (thumbImage) {
+    payload.thumbImage = (await uploadToDigitalOceanAWS(thumbImage)).Location;
+  }
+
+  // Update the service with new data
   const updatedService = await prisma.service.update({
     where: { id },
     data: payload,
