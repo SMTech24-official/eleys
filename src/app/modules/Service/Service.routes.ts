@@ -3,6 +3,7 @@
 
 import express from 'express';
 import { ServiceController } from './Service.controller';
+import { fileUploader } from '../../utils/fileUploader';
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const router = express.Router();
 router.get('/doctor/:doctorId', ServiceController.getServiceByDoctorId);
 
 // Create a new service
-router.post('/', ServiceController.createService);
+router.post('/',fileUploader.uploadInstituteFile, ServiceController.createService);
 
 // Get all services
 router.get('/', ServiceController.getAllServices);

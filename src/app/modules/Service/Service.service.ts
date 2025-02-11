@@ -1,11 +1,43 @@
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
+import { Request } from 'express';
+import { uploadToDigitalOceanAWS } from '../../utils/fileUploadAws';
 
 // Service.service: Module file for the Service functionality.
 
 // Create a new service
-const createService = async (payload: any) => {
+const createService = async (req: Request) => {
+  let payload: any = {};
+
+
+  try {
+    payload = JSON.parse(req.body.data);
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Invalid JSON data Error parsing JSON',
+    );
+  }
+  const isDoctorExist = await prisma.doctor.findUnique({
+    where: { id: payload.doctorId },
+  });
+
+  if (!isDoctorExist) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Doctor does not exist');
+  }
+
+  
+  const existingService = await prisma.service.findFirst({
+    where: { name: payload.name, specialization: payload.specialization },
+  });
+
+  if (existingService) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Service already exists');
+  }
+
+
   if (
     !payload.name ||
     !payload.specialization ||
@@ -19,21 +51,51 @@ const createService = async (payload: any) => {
     );
   }
 
-  const existingService = await prisma.service.findFirst({
-    where: { name: payload.name, specialization: payload.specialization },
-  });
+  
+  const images = req.files;
 
-  if (existingService) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Service already exists');
+  let galleryImages: Express.Multer.File[] | Express.Multer.File[][];
+  if (Array.isArray(images)) {
+    galleryImages = images;
+  } else if (images && 'galleryImages' in images) {
+    galleryImages = images.galleryImages;
+  } else {
+    galleryImages = [];
   }
 
-  const isDoctorExist = await prisma.doctor.findUnique({
-    where: { id: payload.doctorId },
-  });
+  payload.galleryImages = await Promise.all(
+    galleryImages.map(async (image) => {
+      if (Array.isArray(image)) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Invalid image format');
+      }
+      return {
+        url: (await uploadToDigitalOceanAWS(image)).Location,
+      };
+    })
+  );
 
-  if (!isDoctorExist) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Doctor does not exist');
+
+
+  let thumbImage: Express.Multer.File | undefined;
+  if (images && !Array.isArray(images) && 'thumbImage' in images) {
+    thumbImage = Array.isArray(images.thumbImage)
+      ? images.thumbImage[0]
+      : images.thumbImage;
   }
+
+
+
+  //uploadToDigital
+  if (thumbImage) {
+    payload.thumbImage = (await uploadToDigitalOceanAWS(thumbImage)).Location;
+  }
+
+
+
+
+
+
+ 
   const service = await prisma.service.create({
     data: payload,
   });

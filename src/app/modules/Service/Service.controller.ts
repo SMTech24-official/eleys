@@ -7,7 +7,7 @@ import { ServiceService } from './Service.service';
 
 // Create a new service
 const createService = catchAsync(async (req, res) => {
-  const result = await ServiceService.createService(req.body);
+  const result = await ServiceService.createService(req);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
