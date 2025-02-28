@@ -20,7 +20,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const Service_service_1 = require("./Service.service");
 // Create a new service
 const createService = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield Service_service_1.ServiceService.createService(req.body);
+    const result = yield Service_service_1.ServiceService.createService(req);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         message: 'Service created successfully',
@@ -59,7 +59,7 @@ const getServiceByDoctorId = (0, catchAsync_1.default)((req, res) => __awaiter(v
 // Update a service by ID
 const updateService = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield Service_service_1.ServiceService.updateService(id, req.body);
+    const result = yield Service_service_1.ServiceService.updateService(id, req);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         message: 'Service updated successfully',
