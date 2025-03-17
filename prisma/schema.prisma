@@ -46,9 +46,9 @@ model Service {
   price          Float
   isAvailable    Boolean       @default(true)
   doctorId       String        @db.ObjectId
-  thumbImage     String
-  galleryImages   Json
-  description    String
+  thumbImage     String?
+  galleryImages  Json?
+  description    String?      
   serviceList    String[]
   doctor         Doctor        @relation(fields: [doctorId], references: [id])
   createdAt      DateTime      @default(now())
