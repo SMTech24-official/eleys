@@ -5,6 +5,7 @@ import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import { isDataReferenced } from '../../utils/isDataReferenced';
 
+
 const generateSlots = async (payload: any) => {
   const { startDate, endDate, startTime, endTime, serviceId } = payload;
 
