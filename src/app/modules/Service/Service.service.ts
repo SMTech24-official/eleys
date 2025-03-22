@@ -201,6 +201,8 @@ const getServiceById = async (id: string) => {
 const updateService = async (id: string, req: Request) => {
   let payload: any = {};
 
+  console.log(req.body);
+
   // Parse the incoming JSON data
   try {
     payload = JSON.parse(req.body.data);

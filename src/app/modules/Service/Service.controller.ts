@@ -54,6 +54,7 @@ const getServiceByDoctorId = catchAsync(async (req, res) => {
 // Update a service by ID
 const updateService = catchAsync(async (req, res) => {
   const { id } = req.params;
+  console.log(id);
   const result = await ServiceService.updateService(id, req);
 
   sendResponse(res, {
@@ -81,5 +82,5 @@ export const ServiceController = {
   getServiceById,
   updateService,
   deleteService,
-  getServiceByDoctorId
+  getServiceByDoctorId,
 };
